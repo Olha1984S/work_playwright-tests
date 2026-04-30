@@ -4,13 +4,13 @@ import { HomePage } from '../pages/homePage';
 test('Verify that Example Domain page loads correctly', async ({ page }) => {
   const homePage = new HomePage(page);
 
-  // Open Example website
-  await homePage.open('https://example.com');
+  // Open base URL
+  await homePage.open('/');
 
   // Verify page title
-  await expect(page).toHaveTitle(/Example Domain/);
+  await expect(page).toHaveTitle(/Wikipedia/);
 
-  // Verify header is visible (basic UI check)
+  // Verify header is visible
   const isVisible = await homePage.isLogoVisible();
   expect(isVisible).toBeTruthy();
 });
