@@ -2,29 +2,29 @@ import { test, expect } from '@playwright/test';
 import { WikiHomePage } from '../pages/WikiHomePage';
 import { WikiMainPage } from '../pages/WikiMainPage';
 
-test('Все валидные ссылки в случайной статье Wikipedia возвращают HTTP-коды', async ({ page, request }) => {
-  test.setTimeout(120_000); // увеличенный таймаут  --- 2 минуты
+test('Validate that all links in a random Wikipedia article return valid HTTP status codes', async ({ page, request }) => {
+  test.setTimeout(120_000); // extended timeout (2 minutes)
 
   const home = new WikiHomePage(page);
   const main = new WikiMainPage(page);
 
-  // Переход на главную и выбор языка
+  // Step 1: Open Wikipedia and select language
   await home.goto();
   await home.chooseLanguage('Русский');
 
-  // Переход к случайной статье
+  // Step 2: Open random article
   await main.openRandomArticle();
 
-  // Убедимся, что мы точно на статье
-  console.log(`📄 Открыта статья: ${page.url()}`);
+  console.log(`Article opened: ${page.url()}`);
 
-  // Ждём появления ссылок внутри статьи
+  // Step 3: Wait for links inside article
   await page.waitForSelector('#bodyContent a');
 
   const articleBody = page.locator('#bodyContent');
   const linkLocators = articleBody.locator('a');
-  const linkCount = await linkLocators.count();  // count() метода для подсчета 
-  console.log(`🔗 Найдено ссылок внутри #bodyContent: ${linkCount}`);
+  const linkCount = await linkLocators.count();
+
+  console.log(`Links found in article: ${linkCount}`);
 
   const links = await linkLocators.elementHandles();
 
@@ -34,7 +34,7 @@ test('Все валидные ссылки в случайной статье Wi
   for (const link of links) {
     const href = await link.getAttribute('href');
 
-    // Пропускаем невалидные типы ссылок
+    // Skip invalid link types
     if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('javascript:')) {
       continue;
     }
@@ -45,36 +45,36 @@ test('Все валидные ссылки в случайной статье Wi
       const response = await request.get(url);
       const status = response.status();
 
-      console.log(`🌐 ${url} → ${status}`);
+      console.log(`${url} → ${status}`);
       checkedLinks.push({ url, status });
 
       if (status < 200 || status >= 300) {
         badLinks.push({ url, status });
       }
-    } catch (error) {
-      console.warn(`⚠️ ${url} → ошибка запроса`);
+    } catch {
+      console.warn(`${url} → request failed`);
       checkedLinks.push({ url, status: 0 });
       badLinks.push({ url, status: 0 });
     }
   }
 
-  // 📋 Финальный вывод
-  console.log('\n📋 Все проверенные ссылки:');
+  // Final report
+  console.log('\nAll checked links:');
   checkedLinks.forEach(({ url, status }) => {
     console.log(` - ${url} → ${status}`);
   });
 
   if (badLinks.length > 0) {
-    console.log('\n❌ Битые ссылки:');
+    console.log('\nBroken links found:');
     badLinks.forEach(({ url, status }) => {
       console.log(` - ${url} → ${status}`);
     });
   } else {
-    console.log('\n✅ Все ссылки успешны!');
+    console.log('\nAll links are valid');
   }
 
-  // ❗ Если есть битые — проваливаем тест
-  expect(badLinks, 'Обнаружены битые ссылки').toEqual([]);
+  // Fail test if broken links exist
+  expect(badLinks, 'Broken links were found').toEqual([]);
 });
 
 
