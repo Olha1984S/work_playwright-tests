@@ -3,21 +3,21 @@ import { ForNewWiki_1 } from '../pages/ForNewWiki_1';
 import { ForNewWiki_2 } from '../pages/ForNewWiki_2';
 import { ForNewWiki_3 } from '../pages/ForNewWiki_3';
 
-test('Тeст для Wiki + Git', async ({ page }) => {
+test('Search functionality on Wikipedia works correctly', async ({ page }) => {
 
-  // вход
-  const enterWiki = new ForNewWiki_1(page);
-  await enterWiki.enterToSite();
-  await enterWiki.chooseLanguage();
+  // Step 1: Open Wikipedia and select language
+  const wikiHome = new ForNewWiki_1(page);
+  await wikiHome.enterToSite();
+  await wikiHome.chooseLanguage();
 
-  // поиск
-  const enterwordtosearch = new ForNewWiki_2(page);
-  await enterwordtosearch.enterword();
+  // Step 2: Perform search
+  const searchPage = new ForNewWiki_2(page);
+  await searchPage.enterword();
 
-  // заголовок
-  const headlinewordcheck = new ForNewWiki_3(page);
-  await headlinewordcheck.headlinecheck();
+  // Step 3: Verify search result headline
+  const resultPage = new ForNewWiki_3(page);
+  await resultPage.headlinecheck();
 
-  
-
-})
+  // Basic assertion: ensure page has correct URL
+  await expect(page).toHaveURL(/wiki/);
+});
