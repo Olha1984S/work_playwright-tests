@@ -1,4 +1,4 @@
-class HomePage {
+export class HomePage {
   constructor(page) {
     this.page = page;
     this.logo = page.locator('header');
@@ -17,5 +17,3 @@ class HomePage {
     return await this.menuLinks.count();
   }
 }
-
-module.exports = { HomePage };
