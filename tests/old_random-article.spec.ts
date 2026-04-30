@@ -1,24 +1,27 @@
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../pages/homePage';
 
-test('Открыть случайную статью на Wikipedia и вывести заголовок', async ({ page }) => {
-  // Переход на главную страницу Wikipedia
-  await page.goto('https://www.wikipedia.org');
+test('Open random Wikipedia article and verify title is displayed', async ({ page }) => {
 
-  // Нажимаем на ссылку "Русский", чтобы открыть русскую версию сайта 
+  const homePage = new HomePage(page);
+
+  // Step 1: Open Wikipedia
+  await homePage.open('https://www.wikipedia.org');
+
+  // Step 2: Select Russian language
   await page.getByRole('link', { name: 'Русский' }).click();
 
-  // Нажимаем на "Случайная статья"
+  // Step 3: Open random article
   await page.getByRole('link', { name: 'Случайная статья' }).click();
 
-  // Ждём загрузку новой страницы и получаем заголовок
+  // Step 4: Get article title
   const articleTitle = await page.locator('#firstHeading').textContent();
 
-  // Выводим заголовок в консоль 
-  console.log('Заголовок статьи:', articleTitle);
+  console.log('Article title:', articleTitle);
 
-  // Проверка: заголовок должен существовать 
+  // Step 5: Verify title exists
   expect(articleTitle).not.toBeNull();
+
+  // Additional check: URL contains /wiki/
+  await expect(page).toHaveURL(/wiki/);
 });
-
-
-
